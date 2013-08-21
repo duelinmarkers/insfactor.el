@@ -44,6 +44,18 @@
                                nil))
 
 (defun insfactor-render-find-usages-result (buffer data)
-  (nrepl-emit-into-popup-buffer buffer data)
-  ;; TODO use mapc to iterate over data and format & insert each usage
-  )
+  (let* ((title (car data))
+         (output
+         (concat title
+                 "\n\n"
+                 (apply 'concat (mapcan (lambda (ns-group)
+                                          (lexical-let ((ns (car ns-group)))
+                                            (mapcar (lambda (loc)
+                                                      (format "%s:%s,%s\n" ns (car loc) (car (cdr loc))))
+                                                    (cdr ns-group))))
+                                        (cdr data))))))
+    (nrepl-emit-into-popup-buffer buffer output)
+    (save-excursion
+      (with-current-buffer buffer
+        (compilation-minor-mode)))
+    ))
