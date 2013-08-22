@@ -45,15 +45,21 @@
 
 (defun insfactor-render-find-usages-result (buffer data)
   (let* ((title (car data))
-         (output
-         (concat title
-                 "\n\n"
-                 (apply 'concat (mapcan (lambda (ns-group)
-                                          (lexical-let ((ns (car ns-group)))
-                                            (mapcar (lambda (loc)
-                                                      (format "%s:%s: \n" ns (car loc) (car (cdr loc))))
-                                                    (cdr ns-group))))
-                                        (cdr data))))))
+         (body
+          (apply 'concat (mapcan (lambda (ns-group)
+                                   (lexical-let ((ns (car ns-group)))
+                                     (mapcar (lambda (loc)
+                                               (format "%s:%s: %s"
+                                                       ns
+                                                       (car loc)
+                                                       ;; (car (cdr loc)) column unused
+                                                       (shell-command-to-string (format "sed -n '%s,%ss/^[ ]*//p' %s"
+                                                                                        (car loc)
+                                                                                        (car loc)
+                                                                                        ns))))
+                                             (cdr ns-group))))
+                                 (cdr data))))
+         (output (concat title "\n\n" body)))
     (nrepl-emit-into-popup-buffer buffer output)
     (save-excursion
       (with-current-buffer buffer
