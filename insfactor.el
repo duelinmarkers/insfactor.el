@@ -51,7 +51,7 @@
                  (apply 'concat (mapcan (lambda (ns-group)
                                           (lexical-let ((ns (car ns-group)))
                                             (mapcar (lambda (loc)
-                                                      (format "%s:%s,%s\n" ns (car loc) (car (cdr loc))))
+                                                      (format "%s:%s: \n" ns (car loc) (car (cdr loc))))
                                                     (cdr ns-group))))
                                         (cdr data))))))
     (nrepl-emit-into-popup-buffer buffer output)
