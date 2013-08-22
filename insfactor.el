@@ -63,5 +63,4 @@
     (nrepl-emit-into-popup-buffer buffer output)
     (save-excursion
       (with-current-buffer buffer
-        (compilation-minor-mode)))
-    ))
+        (compilation-minor-mode)))))
