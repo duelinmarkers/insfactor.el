@@ -10,7 +10,7 @@
                           (string= "\"" first-char))
                       expr)
                      ((string= "'" first-char)
-                     ((concat ) "#" expr))
+                      (concat "#" expr))
                      (t
                       (concat "#'" expr))))
          (form (format "(do
