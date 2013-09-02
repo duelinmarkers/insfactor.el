@@ -19,7 +19,6 @@
                        (nrepl-current-ns)
                        expr)))
     (nrepl-send-string form
-                       ;; (insfactor-make-find-usages-handler)
                        (insfactor-make-find-usages-handler)
                        nrepl-buffer-ns
                        (nrepl-current-tooling-session))))
