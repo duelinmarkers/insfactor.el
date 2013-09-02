@@ -1,3 +1,38 @@
+;;; insfactor.el -- Client for a Clojure project with insfactor in it
+
+;; Copyright (C) 2013 John D. Hume
+
+;; Author: John D. Hume <duelin.markers@gmail.com>
+;; URL: http://github.com/duelinmarkers/insfactor.el
+;; Version: 0.1.0
+;; Keywords: clojure
+;; Package-Requires: ((nrepl "0.1.8"))
+
+;; This file in not part of GNU Emacs.
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Index your insfactor-enabled lein project with M-x insfactor-index-project.
+;; Ater indexing, find usages with M-x insfactor-find-usages.
+;;
+;; See http://github.com/duelinmarkers/insfactor for details
+;; on setting up your lein project with insfactor.
+
+;;; Code:
+
 (require 'nrepl)
 
 (defun insfactor-index-project ()
@@ -76,3 +111,5 @@
         (compilation-minor-mode)))))
 
 (provide 'insfactor)
+
+;;; insfactor.el ends here
