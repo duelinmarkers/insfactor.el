@@ -64,3 +64,5 @@
     (save-excursion
       (with-current-buffer buffer
         (compilation-minor-mode)))))
+
+(provide 'insfactor)
