@@ -1,5 +1,16 @@
 (require 'nrepl)
 
+(defun insfactor-index-project ()
+  (interactive)
+  (nrepl-send-string "(do
+                        (require 'duelinmarkers.insfactor.project)
+                        (duelinmarkers.insfactor.project/index-project!))"
+                     (nrepl-make-response-handler (nrepl-current-repl-buffer)
+                                                  (lambda (buffer v) (message "%s" v))
+                                                  (lambda (buffer v) (message "%s" v))
+                                                  (lambda (buffer v) (message "%s" v))
+                                                  (lambda (buffer v) (message "%s" v)))))
+
 (defun insfactor-find-usages (query)
   (interactive "P")
   (nrepl-read-symbol-name "Symbol, keyword, or string literal in \": " 'insfactor-get-usages query))
