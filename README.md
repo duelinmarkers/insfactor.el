@@ -1,4 +1,4 @@
-## insfactor.el
+# insfactor.el
 
 Index your insfactor-enabled lein project with `M-x insfactor-index-project`.
 After indexing, find usages with `M-x insfactor-find-usages`.
