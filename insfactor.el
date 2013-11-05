@@ -37,9 +37,17 @@
 
 (defun insfactor-index-project ()
   (interactive)
-  (nrepl-send-string "(do
+  (nrepl-send-string "(try
                         (require 'duelinmarkers.insfactor.project)
-                        (duelinmarkers.insfactor.project/index-project!))"
+                        (catch Exception e (println e)))"
+                     (nrepl-make-response-handler (nrepl-current-repl-buffer)
+                                                  (lambda (buffer v) (message "%s" v))
+                                                  (lambda (buffer v) (message "%s" v))
+                                                  (lambda (buffer v) (message "%s" v))
+                                                  (lambda (buffer v) (message "%s" v))))
+  (nrepl-send-string "(try
+                        (duelinmarkers.insfactor.project/index-project!)
+                        (catch Exception e (println e)))"
                      (nrepl-make-response-handler (nrepl-current-repl-buffer)
                                                   (lambda (buffer v) (message "%s" v))
                                                   (lambda (buffer v) (message "%s" v))
