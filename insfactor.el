@@ -33,7 +33,23 @@
 
 ;;; Code:
 
-(require 'nrepl)
+(defvar prefix)
+
+(when (featurep 'nrepl)
+  (require 'nrepl)
+  (setq prefix "nrepl-"))
+
+(when (featurep 'cider-autoloads)
+  (require 'cider-autoloads)
+  (setq prefix "cider-"))
+
+(dolist (fn '("read-symbol-name"
+              "current-ns"
+              "make-popup-buffer"
+              "popup-buffer-display"
+              "emit-output"
+              "emit-into-popup-buffer"))
+  (defalias (intern fn) (intern (concat prefix fn))))
 
 (defun insfactor-index-project ()
   (interactive)
@@ -56,7 +72,7 @@
 
 (defun insfactor-find-usages (query)
   (interactive "P")
-  (nrepl-read-symbol-name "Symbol, keyword, or string literal in \": " 'insfactor-get-usages query))
+  (read-symbol-name "Symbol, keyword, or string literal in \": " 'insfactor-get-usages query))
 
 (defun insfactor-get-usages (expr)
   (let* ((first-char (substring expr 0 1))
@@ -70,7 +86,7 @@
          (form (format "(do
                           (in-ns '%s)
                           (duelinmarkers.insfactor/find-usages %s))"
-                       (nrepl-current-ns)
+                       (current-ns)
                        expr)))
     (nrepl-send-string form
                        (insfactor-make-find-usages-handler)
@@ -78,21 +94,21 @@
                        (nrepl-current-tooling-session))))
 
 (defun insfactor-make-find-usages-handler ()
-  (nrepl-make-response-handler (nrepl-make-popup-buffer "Usages")
+  (nrepl-make-response-handler (make-popup-buffer "Usages")
                                (lambda (buffer value)
-                                 (nrepl-popup-buffer-display buffer)
+                                 (popup-buffer-display buffer)
                                  (insfactor-render-find-usages-result
                                   buffer
                                   (first (read-from-string value))))
                                ;; (lambda (buffer out)
                                ;;   (message "out handler: %s" out)
-                               ;;   (nrepl-emit-output buffer out t)
-                               ;;   (nrepl-popup-buffer-display buffer))
+                               ;;   (emit-output buffer out t)
+                               ;;   (popup-buffer-display buffer))
                                nil
                                (lambda (buffer err)
                                  (message "err handler: %s" err)
-                                 (nrepl-emit-output buffer err t)
-                                 (nrepl-popup-buffer-display buffer))
+                                 (emit-output buffer err t)
+                                 (popup-buffer-display buffer))
                                ;; nil
                                nil))
 
@@ -113,7 +129,7 @@
                                              (cdr ns-group))))
                                  (cdr data))))
          (output (concat title "\n\n" body)))
-    (nrepl-emit-into-popup-buffer buffer output)
+    (emit-into-popup-buffer buffer output)
     (save-excursion
       (with-current-buffer buffer
         (compilation-minor-mode)))))
