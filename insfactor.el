@@ -35,13 +35,10 @@
 
 (defvar prefix)
 
-(when (featurep 'nrepl)
+(if (require 'cider nil t)
+    (setq prefix "cider-")
   (require 'nrepl)
   (setq prefix "nrepl-"))
-
-(when (featurep 'cider-autoloads)
-  (require 'cider-autoloads)
-  (setq prefix "cider-"))
 
 (dolist (fn '("read-symbol-name"
               "current-ns"
