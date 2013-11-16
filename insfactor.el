@@ -6,7 +6,6 @@
 ;; URL: http://github.com/duelinmarkers/insfactor.el
 ;; Version: 0.1.0
 ;; Keywords: clojure
-;; Package-Requires: ((nrepl "0.1.8"))
 
 ;; This file in not part of GNU Emacs.
 
@@ -33,22 +32,23 @@
 
 ;;; Code:
 
-(defvar prefix)
+(unless (require 'cider nil t)
+  (require 'nrepl))
 
-(if (require 'cider nil t)
-    (setq prefix "cider-")
-  (require 'nrepl)
-  (setq prefix "nrepl-"))
-
-(dolist (fn '("read-symbol-name"
-              "current-ns"
-              "make-popup-buffer"
-              "popup-buffer-display"
-              "emit-output"
-              "emit-into-popup-buffer"))
-  (defalias (intern (concat "insfactor--" fn)) (intern (concat prefix fn))))
+(let ((prefix (if (featurep 'cider) "cider-" "nrepl-")))
+ (dolist (fn '("read-symbol-name"
+               "current-ns"
+               "make-popup-buffer"
+               "popup-buffer-display"
+               "emit-output"
+               "emit-into-popup-buffer"))
+   (let ((aliased-fn (intern (concat prefix fn))))
+     (unless (functionp aliased-fn)
+       (error "%S is not defined." aliased-fn))
+     (defalias (intern (concat "insfactor--" fn)) aliased-fn))))
 
 (defun insfactor-index-project ()
+  "Tell the insfactor backend to index the current project."
   (interactive)
   (nrepl-send-string "(try
                         (require 'duelinmarkers.insfactor.project)
@@ -68,6 +68,7 @@
                                                   (lambda (buffer v) (message "%s" v)))))
 
 (defun insfactor-find-usages (query)
+  "Find usages matching QUERY."
   (interactive "P")
   (insfactor--read-symbol-name "Symbol, keyword, or string literal in \": " 'insfactor-get-usages query))
 
