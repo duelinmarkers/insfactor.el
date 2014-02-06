@@ -1,4 +1,4 @@
-;;; insfactor.el -- Client for a Clojure project with insfactor in it
+;;; insfactor.el --- Client for a Clojure project with insfactor in it
 
 ;; Copyright (C) 2013 John D. Hume
 
