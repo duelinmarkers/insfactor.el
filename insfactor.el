@@ -1,10 +1,10 @@
 ;;; insfactor.el --- Client for a Clojure project with insfactor in it
 
-;; Copyright (C) 2013 John D. Hume
+;; Copyright (C) 2013-2014 John D. Hume
 
 ;; Author: John D. Hume <duelin.markers@gmail.com>
 ;; URL: http://github.com/duelinmarkers/insfactor.el
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Keywords: clojure
 
 ;; This file in not part of GNU Emacs.
@@ -32,20 +32,7 @@
 
 ;;; Code:
 
-(unless (require 'cider nil t)
-  (require 'nrepl))
-
-(let ((prefix (if (featurep 'cider) "cider-" "nrepl-")))
- (dolist (fn '("read-symbol-name"
-               "current-ns"
-               "make-popup-buffer"
-               "popup-buffer-display"
-               "emit-output"
-               "emit-into-popup-buffer"))
-   (let ((aliased-fn (intern (concat prefix fn))))
-     (unless (functionp aliased-fn)
-       (error "%S is not defined." aliased-fn))
-     (defalias (intern (concat "insfactor--" fn)) aliased-fn))))
+(require 'cider)
 
 (defun insfactor-index-project ()
   "Tell the insfactor backend to index the current project."
@@ -53,24 +40,24 @@
   (nrepl-send-string "(try
                         (require 'duelinmarkers.insfactor.project)
                         (catch Exception e (println e)))"
-                     (nrepl-make-response-handler (nrepl-current-repl-buffer)
+                     (nrepl-make-response-handler (cider-current-repl-buffer)
                                                   (lambda (buffer v) (message "%s" v))
                                                   (lambda (buffer v) (message "%s" v))
                                                   (lambda (buffer v) (message "%s" v))
-                                                  (lambda (buffer v) (message "%s" v))))
+                                                  (lambda (buffer) (message "Done requiring."))))
   (nrepl-send-string "(try
                         (duelinmarkers.insfactor.project/index-project!)
                         (catch Exception e (println e)))"
-                     (nrepl-make-response-handler (nrepl-current-repl-buffer)
+                     (nrepl-make-response-handler (cider-current-repl-buffer)
                                                   (lambda (buffer v) (message "%s" v))
                                                   (lambda (buffer v) (message "%s" v))
                                                   (lambda (buffer v) (message "%s" v))
-                                                  (lambda (buffer v) (message "%s" v)))))
+                                                  (lambda (buffer) (message "Done indexing!")))))
 
 (defun insfactor-find-usages (query)
   "Find usages matching QUERY."
   (interactive "P")
-  (insfactor--read-symbol-name "Symbol, keyword, or string literal in \": " 'insfactor-get-usages query))
+  (cider-read-symbol-name "Symbol naming a var:" 'insfactor-get-usages query))
 
 (defun insfactor-get-usages (expr)
   (let* ((first-char (substring expr 0 1))
@@ -84,7 +71,7 @@
          (form (format "(do
                           (in-ns '%s)
                           (duelinmarkers.insfactor/find-usages %s))"
-                       (insfactor--current-ns)
+                       (cider-current-ns)
                        expr)))
     (nrepl-send-string form
                        (insfactor-make-find-usages-handler)
@@ -92,21 +79,23 @@
                        (nrepl-current-tooling-session))))
 
 (defun insfactor-make-find-usages-handler ()
-  (nrepl-make-response-handler (insfactor--make-popup-buffer "Usages")
+  (nrepl-make-response-handler (cider-make-popup-buffer "Usages")
                                (lambda (buffer value)
-                                 (insfactor--popup-buffer-display buffer)
+                                 (cider-popup-buffer-display buffer)
                                  (insfactor-render-find-usages-result
                                   buffer
                                   (first (read-from-string value))))
-                               ;; (lambda (buffer out)
-                               ;;   (message "out handler: %s" out)
-                               ;;   (insfactor--emit-output buffer out t)
-                               ;;   (insfactor--popup-buffer-display buffer))
-                               nil
+                               (lambda (buffer out)
+                                 (message "out handler: %s" out)
+                                 ;; (cider-emit-output buffer out t)
+                                 ;; (cider-popup-buffer-display buffer)
+                                 )
+                               ;; nil
                                (lambda (buffer err)
                                  (message "err handler: %s" err)
-                                 (insfactor--emit-output buffer err t)
-                                 (insfactor--popup-buffer-display buffer))
+                                 ;; (cider-emit-output buffer err t)
+                                 ;; (cider-popup-buffer-display buffer)
+                                 )
                                ;; nil
                                nil))
 
@@ -127,7 +116,7 @@
                                              (cdr ns-group))))
                                  (cdr data))))
          (output (concat title "\n\n" body)))
-    (insfactor--emit-into-popup-buffer buffer output)
+    (cider-emit-into-popup-buffer buffer output)
     (save-excursion
       (with-current-buffer buffer
         (compilation-minor-mode)))))
