@@ -55,7 +55,7 @@
                                                   (lambda (buffer) (message "Done indexing!")))))
 
 (defun insfactor-find-usages (query)
-  "Find usages matching QUERY."
+  "Find usages of var or keyword at point, or prompt for a var."
   (interactive "P")
   (cider-read-symbol-name "Symbol naming a var:" 'insfactor-get-usages query))
 
